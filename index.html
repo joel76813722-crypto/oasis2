@@ -1,619 +1,511 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Galaxia de Flores Amarillas Alex Dev</title>
-
-    <!--
-
-Contáctame:
-
-   * Crea tus diseños sin código
- https://comparte-amor.vercel.app/
-
-    * Invitame un café
- https://buymeacoffee.com/alexx.dev
-
-    * Portafolio Web
- https://alexxdev.vercel.app
-
-    * Sigueme en tiktok
- https://www.tiktok.com/@alexx.dev?is_from_webapp=1&sender_device=pc
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>Una invitación especial para ti</title>
+  
+  <!-- CDNs principales -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
  
-    * Canal de WhatsApp
- https://whatsapp.com/channel/0029VazQEXq90x2vIdNkrH1p
-
+  <!-- Tipografías elegantes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
  
-   * WhatsApp: +52 5587450945
-https://wa.me/525568916053
-
-
--->
-
   <style>
-    * {
+    * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #030712;
+      color: #f3f4f6;
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      overflow: hidden;
+      overflow-x: hidden;
+      user-select: none;
     }
-
-    *{
-        cursor: url('flor.png'), auto !important;
-
-    }
-
-    #container {
+    .font-serif-celestial { font-family: 'Cinzel', serif; }
+ 
+    #webgl-container {
       width: 100vw;
       height: 100vh;
-      background: radial-gradient(circle at center, #111100 0%, #000000 100%);
       position: fixed;
-      top: 0;
-      left: 0;
-    }
-
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       z-index: 1;
+      pointer-events: none;
+    }
+ 
+    /* Estética Glassmorphism Celestial */
+    .celestial-glass {
+      background: rgba(10, 15, 30, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(244, 211, 94, 0.25);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    }
+ 
+    .celestial-glow-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .celestial-glow-btn:hover {
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
     }
 
-    #modalCarta {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    .celestial-glow-btn:active {
+      transform: scale(0.97);
+    }
+ 
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Animaciones sutiles */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-float {
+      animation: floatSlow 5s ease-in-out infinite;
     }
 
-    #modalCarta.show {
-      display: flex;
-      opacity: 1;
+    /* Estilos de input personalizados */
+    .celestial-input {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(244, 211, 94, 0.3);
+      color: #fff;
+      transition: all 0.3s ease;
     }
-
-    #cartaImg {
-      max-width: 90vw;
-      max-height: 80vh;
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 204, 0, 0.6);
-      object-fit: contain;
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    #cerrarModal {
-      margin-top: 20px;
-      padding: 10px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-      background-color: #ffcc00;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-
-    #cerrarModal:active {
-      transform: scale(0.95);
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+    .celestial-input:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
     }
   </style>
 </head>
-
-<body>
-  <div id="container"></div>
-
-  <div id="modalCarta">
-    <img id="cartaImg" src="" alt="Carta">
-    <button id="cerrarModal">Cerrar</button>
+<body class="relative min-h-screen w-screen flex flex-col justify-between">
+ 
+  <!-- Fondo Canvas 3D -->
+  <div id="webgl-container"></div>
+ 
+  <!-- Reproductor de Audio flotante -->
+  <div class="fixed top-5 right-5 z-40 celestial-glass px-4 py-2 rounded-full flex items-center gap-3 transition-all duration-300 shadow-lg">
+    <audio id="audio-player" loop preload="auto">
+      <source src="musica.mp3" type="audio/mpeg">
+    </audio>
+    <button onclick="toggleMusic()" class="flex items-center gap-2 text-xs font-medium text-amber-200 hover:text-white transition-all focus:outline-none">
+      <span id="music-icon" class="text-base animate-pulse">🎶</span>
+      <span id="music-text" class="tracking-wider uppercase text-[10px] font-semibold hidden sm:inline">Paz Celestial</span>
+    </button>
   </div>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
-      }
-    }
-  </script>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.0015);
-
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 4, 18); 
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    document.getElementById('container').appendChild(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.autoRotate = false; 
-    controls.enabled = false; 
-
-    const textureLoader = new THREE.TextureLoader();
-
-
-    const flowerExplosionGroup = new THREE.Group();
-    scene.add(flowerExplosionGroup);
-    const explFlowers = [];
-    const fUrls = ["flor1.png", "flor2.png", "flor3.png", "flor4.png", "flor5.png", "flor6.png", "flor7.png"];
+  <!-- Contenedor Principal de la Experiencia -->
+  <main class="relative z-20 flex-1 flex items-center justify-center p-4 sm:p-6 my-auto">
     
-    fUrls.forEach(url => {
-      for(let k=0; k<15; k++) { 
-        const tex = textureLoader.load(url);
-        tex.colorSpace = THREE.SRGBColorSpace; 
-        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-        
-        sprite.position.set(
-          (Math.random() - 0.5) * 150,
-          (Math.random() - 0.5) * 150,
-          - (Math.random() * 400) 
-        );
-        
-        const s = Math.random() * 2.5 + 1.5;
-        sprite.scale.set(s, s, 1);
-        
-        flowerExplosionGroup.add(sprite);
-        explFlowers.push(sprite);
-      }
-    });
-
-    const galaxyGroup = new THREE.Group();
-    scene.add(galaxyGroup);
-    galaxyGroup.visible = false; 
-    galaxyGroup.scale.set(0, 0, 0); 
-
-    function createGlowMaterial(color, size = 128) {
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = size;
-      const context = canvas.getContext('2d');
-      const gradient = context.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(1, 'rgba(0,0,0,0)');
-      context.fillStyle = gradient;
-      context.fillRect(0, 0, size, size);
-      return new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, blending: THREE.AdditiveBlending }));
-    }
-
-    const centralGlow = createGlowMaterial('rgba(255, 230, 100, 0.8)', 256);
-    centralGlow.scale.set(8, 8, 1);
-    galaxyGroup.add(centralGlow); 
-
-    for (let i = 0; i < 15; i++) {
-      const hue = 40 + Math.random() * 25;
-      const nebula = createGlowMaterial(`hsla(${hue}, 100%, 50%, 0.3)`, 256);
-      nebula.scale.set(10 + Math.random() * 20, 10 + Math.random() * 20, 1);
-      nebula.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40);
-      galaxyGroup.add(nebula); 
-    }
-
-    const galaxyParams = {
-      count: 100000, arms: 4, radius: 10, spin: 2, randomness: 0.3, randomnessPower: 3,
-      insideColor: new THREE.Color(0xffcc00), 
-      outsideColor: new THREE.Color(0xffff66) 
-    };
-
-    const positions = new Float32Array(galaxyParams.count * 3);
-    const colors = new Float32Array(galaxyParams.count * 3);
-
-    for (let i = 0; i < galaxyParams.count; i++) {
-      const i3 = i * 3;
-      const radius = Math.pow(Math.random(), galaxyParams.randomnessPower) * galaxyParams.radius;
-      const branchAngle = ((i % galaxyParams.arms) / galaxyParams.arms) * Math.PI * 2;
-      const totalAngle = branchAngle + (radius * galaxyParams.spin);
+    <!-- PASO 1: Pantalla Inicial -->
+    <section id="step-welcome" class="w-full max-w-lg celestial-glass rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden transition-all duration-700 animate-float">
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
       
-      positions[i3]     = Math.cos(totalAngle) * radius + (Math.random() - 0.5) * galaxyParams.randomness * radius;
-      positions[i3 + 1] = (Math.random() - 0.5) * galaxyParams.randomness * radius * 0.5;
-      positions[i3 + 2] = Math.sin(totalAngle) * radius + (Math.random() - 0.5) * galaxyParams.randomness * radius;
-      
-      const mixedColor = galaxyParams.insideColor.clone();
-      mixedColor.lerp(galaxyParams.outsideColor, radius / galaxyParams.radius);
-      mixedColor.multiplyScalar(0.7 + 0.3 * Math.random());
-      colors[i3] = mixedColor.r; colors[i3 + 1] = mixedColor.g; colors[i3 + 2] = mixedColor.b;
-    }
-
-    const galaxyGeom = new THREE.BufferGeometry();
-    galaxyGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    galaxyGeom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    const galaxyMat = new THREE.PointsMaterial({ size: 0.02, vertexColors: true, depthWrite: false, blending: THREE.AdditiveBlending });
-    
-    const galaxy = new THREE.Points(galaxyGeom, galaxyMat);
-    galaxyGroup.add(galaxy);
-
+      <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-amber-400/30 to-blue-500/20 flex items-center justify-center shadow-inner border border-amber-400/30">
+        <span class="text-3xl sm:text-4xl">☕✨</span>
+      </div>
  
-    const starGeom = new THREE.BufferGeometry();
-    const starCount = 8000;
-    const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 400;
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 400;
-      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 400;
-    }
-    starGeom.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true });
-    const stars = new THREE.Points(starGeom, starMat);
-    scene.add(stars);
-
-  
-    const cometGroup = new THREE.Group();
-    scene.add(cometGroup);
-    const comets = [];
-
-    function createCometMesh() {
-      const group = new THREE.Group();
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.15, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffffee })
-      );
-      group.add(head);
+      <h1 class="text-2xl sm:text-3xl font-serif-celestial font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-blue-200 mb-4 tracking-wide leading-snug">
+        “Tal vez creas que llegaste por casualidad…”
+      </h1>
       
-      const tailGeo = new THREE.ConeGeometry(0.2, 8, 8);
-      tailGeo.translate(0, -4, 0);
-      const tail = new THREE.Mesh(
-        tailGeo,
-        new THREE.MeshBasicMaterial({ 
-          color: 0xffff88, 
-          transparent: true, opacity: 0.4, 
-          blending: THREE.AdditiveBlending, depthWrite: false 
-        })
-      );
-      group.add(tail);
-      return group;
-    }
+      <div class="space-y-3 text-sm sm:text-base text-slate-300 font-light leading-relaxed mb-6 text-left sm:text-center">
+        <p>
+          Un día estabas en el parque Identidad. Quizás saliste a caminar, viste una invitación, aceptaste un café o simplemente decidiste acercarte. Lo que parecía un momento sencillo terminó convirtiéndose en una oportunidad para conocernos. Y hoy queremos invitarte a descubrir algo más especial detrás de aquel encuentro.
+        </p>
+      </div>
 
-    function resetComet(comet) {
-      comet.position.set(
-        (Math.random() - 0.5) * 300,
-        150 + Math.random() * 100, 
-        (Math.random() - 0.5) * 300
-      );
-      comet.userData.velocity = new THREE.Vector3(
-        (Math.random() - 0.5) * 3,
-        - (Math.random() * 2 + 2),
-        (Math.random() - 0.5) * 3
-      ).normalize().multiplyScalar(Math.random() * 3 + 2); 
-      comet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), comet.userData.velocity.clone().normalize());
-    }
+      <div class="space-y-4 pt-2">
+        <div class="text-left">
+          <label for="user-name" class="block text-xs uppercase tracking-widest text-amber-300/90 font-semibold mb-2">¿Cómo te llamas?</label>
+          <input type="text" id="user-name" placeholder="Escribe tu nombre aquí..." class="w-full celestial-input px-4 py-3 rounded-xl text-sm sm:text-base placeholder-slate-500" autocomplete="off" />
+        </div>
 
-    for(let i = 0; i < 12; i++) { 
-      const c = createCometMesh();
-      resetComet(c);
-      cometGroup.add(c);
-      comets.push(c);
-    }
+        <button onclick="startJourney()" class="w-full py-4 rounded-xl celestial-glow-btn text-slate-950 font-serif-celestial font-bold text-xs sm:text-sm tracking-widest uppercase">
+          Quiero descubrir este mensaje ✨
+        </button>
+        <p id="error-msg" class="text-xs text-rose-300 h-4 transition-opacity opacity-0">Por favor, escribe tu nombre para continuar.</p>
+      </div>
+    </section>
 
+    <!-- PASO 2: Transición de carga / cinematográfica (Oculta por defecto) -->
+    <section id="step-transition" class="hidden w-full max-w-lg text-center transition-opacity duration-1000 opacity-0">
+      <div class="celestial-glass rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+        <div class="w-16 h-16 mx-auto mb-6 rounded-full border-2 border-amber-400/40 border-t-amber-400 animate-spin flex items-center justify-center">
+          <span class="text-amber-300 text-sm">✨</span>
+        </div>
+        <h2 id="transition-greeting" class="text-xl sm:text-2xl font-serif-celestial text-amber-200 font-semibold tracking-wide">
+          Preparando un momento especial para ti...
+        </h2>
+      </div>
+    </section>
 
-    const heartCount = 15000;
-    const hPos = new Float32Array(heartCount * 3);
-    const hCol = new Float32Array(heartCount * 3);
-    for(let i=0; i < heartCount; i++) {
-      const t = Math.PI * 2 * Math.random();
-      let x = 16 * Math.pow(Math.sin(t), 3);
-      let y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-      let z = (Math.random() - 0.5) * 3;
+    <!-- PASO 3 y 4: Mensaje central y Versículo (Ocultos por defecto) -->
+    <section id="step-message" class="hidden w-full max-w-2xl celestial-glass rounded-3xl p-6 sm:p-10 text-left relative overflow-hidden transition-all duration-1000 opacity-0 my-8">
+      <div class="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
       
-      const scale = 0.15, noise = 0.4;
-      hPos[i*3] = x * scale + (Math.random() - 0.5) * noise;
-      hPos[i*3+1] = y * scale + (Math.random() - 0.5) * noise;
-      hPos[i*3+2] = z * scale + (Math.random() - 0.5) * noise;
+      <!-- Cabecera del mensaje -->
+      <div class="border-b border-amber-500/20 pb-5 mb-6">
+        <span class="text-[11px] uppercase font-semibold tracking-widest text-amber-300 bg-amber-950/50 border border-amber-500/30 px-3 py-1 rounded-full inline-block mb-3">
+          Una invitación para tu corazón
+        </span>
+        <h2 id="dynamic-title" class="text-2xl sm:text-3xl font-serif-celestial font-bold text-white tracking-wide">
+          Hola, [NOMBRE]. ❤️
+        </h2>
+      </div>
 
-      const mixedColor = galaxyParams.insideColor.clone();
-      mixedColor.lerp(galaxyParams.outsideColor, Math.random());
-      hCol[i*3] = mixedColor.r; hCol[i*3+1] = mixedColor.g; hCol[i*3+2] = mixedColor.b;
-    }
-    const heartGeom = new THREE.BufferGeometry();
-    heartGeom.setAttribute('position', new THREE.BufferAttribute(hPos, 3));
-    heartGeom.setAttribute('color', new THREE.BufferAttribute(hCol, 3));
-    const heartParticles = new THREE.Points(heartGeom, galaxyMat);
-    heartParticles.position.set(0, 4, 0);
-    heartParticles.scale.set(0, 0, 0); 
-    scene.add(heartParticles);
+      <!-- Cuerpo de la reflexión -->
+      <div class="space-y-4 text-sm sm:text-base text-slate-200 font-light leading-relaxed">
+        <p>
+          ¿Recuerdas aquel día en el parque Identidad? Quizás para ti solo fue una salida más, un café compartido o un encuentro inesperado. Tal vez no imaginabas que aquel pequeño momento te traería hasta aquí.
+        </p>
+        <p>
+          Quiero que sepas algo: tu vida tiene valor, y eres alguien digno de amor. A veces, en medio de nuestras ocupaciones, preocupaciones y luchas, olvidamos que podemos detenernos un momento y abrir nuestro corazón a Dios.
+        </p>
+        <p>
+          Quizás llegaste con una sonrisa, con curiosidad o simplemente porque alguien te invitó. No necesitas tener todas las respuestas, ni ser perfecto, ni conocer mucho de la Biblia para acercarte a mí.
+        </p>
+        <p>
+          Quiero que sepas que puedes venir tal como eres, con tus preguntas, tus sueños, tus heridas y tus temores. No tienes que fingir que todo está bien para buscar mi presencia.
+        </p>
+        <p>
+          Tal vez todavía no entiendas por qué llegaste a aquel lugar o por qué ahora formas parte de este grupo. Pero quiero invitarte a mirar más allá de las coincidencias y darte la oportunidad de conocerme de verdad.
+        </p>
+        <p>
+          No quiero que me conozcas solamente por lo que otros te cuentan. Quiero que tú mismo descubras mi amor, que encuentres paz en mi presencia y que aprendas a caminar conmigo cada día.
+        </p>
+        <p>
+          No importa cuánto tiempo haya pasado desde la última vez que oraste, ni si alguna vez sentiste que estabas lejos de Dios. Puedes comenzar de nuevo. Hay espacio para ti, para tus preguntas y para tu proceso.
+        </p>
+        <p>
+          Aquel café fue un pequeño gesto de cariño; nuestra oración es que haya sido también una oportunidad para que descubras que eres bienvenido y que puedes acercarte a Jesús.
+        </p>
+        <p class="font-medium text-amber-200/90 pt-2">
+          No estás obligado a tener todas las respuestas hoy. Solo te invito a dar un paso, a conocerme y a dejar que mi amor transforme tu manera de ver la vida.
+        </p>
+        <p class="italic text-slate-300 pt-1">
+          Con amor, una invitación para acercarte a Jesús. ❤️
+        </p>
+      </div>
 
+      <!-- Versículo Bíblico Relacionado -->
+      <div class="mt-8 p-5 rounded-2xl bg-slate-900/60 border border-amber-500/30 relative">
+        <div class="absolute top-3 right-4 text-amber-400/20 text-4xl font-serif-celestial">“</div>
+        <p class="text-xs uppercase tracking-widest text-amber-400 font-semibold mb-2">Mateo 11:28</p>
+        <blockquote class="text-base sm:text-lg font-serif-celestial text-amber-100 italic mb-3">
+          “Vengan a mí todos ustedes que están cansados y agobiados, y yo les daré descanso”.
+        </blockquote>
+        <p class="text-xs sm:text-sm text-slate-300 font-light leading-relaxed border-t border-slate-800 pt-3">
+          Jesús no te pide que primero tengas tu vida resuelta para acercarte a él. Su invitación es que vengas a él tal como estás.
+        </p>
+      </div>
+
+      <!-- PASO 6: Interacciones finales -->
+      <div class="mt-8 pt-6 border-t border-amber-500/20 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button onclick="showMoreFaith()" class="w-full py-3.5 px-4 rounded-xl celestial-glow-btn text-slate-950 font-serif-celestial font-bold text-xs tracking-wider uppercase text-center flex items-center justify-center gap-2">
+            Quiero conocer más de Jesús ❤️
+          </button>
+          <button onclick="restartMessage()" class="w-full py-3.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-amber-500/30 text-amber-200 font-serif-celestial font-bold text-xs tracking-wider uppercase text-center transition-all flex items-center justify-center gap-2">
+            Quiero volver a leer el mensaje ✨
+          </button>
+        </div>
+
+        <!-- Sección expandible opcional y delicada -->
+        <div id="faith-reflection" class="hidden mt-6 p-5 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-sm text-slate-200 space-y-3 animate-fadeIn">
+          <h3 class="font-serif-celestial font-bold text-amber-200 text-base">Un acercamiento sencillo a Dios</h3>
+          <p class="font-light leading-relaxed">
+            Acercarse a Dios no requiere fórmulas complejas ni palabras perfectas. Si en este momento deseas abrirle tu corazón en privado, puedes expresarle algo sencillo como esto con tus propias palabras:
+          </p>
+          <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800 italic text-slate-300 text-xs sm:text-sm">
+            “Señor Jesús, gracias por este día y por recordarme que te importo. Hoy reconozco que tengo cargas y preguntas, y decido aceptar tu invitación. Te pido que traigas paz a mi vida y me ayudes a conocerte mejor cada día. Amén.”
+          </div>
+          <p class="text-xs text-amber-300/80 font-light">
+            Tómate tu tiempo. Dios escucha cada pensamiento sincero de tu corazón, sin presiones ni juicios.
+          </p>
+        </div>
+
+        <!-- Mensaje final de despedida -->
+        <div class="mt-8 text-center space-y-2 pt-4">
+          <p class="text-sm sm:text-base text-slate-300 font-light">
+            Nos alegra que hayas compartido aquel café con nosotros. Esperamos que este sea el comienzo de una bonita oportunidad para conocer más a Jesús, crecer en la fe y caminar juntos.
+          </p>
+          <p class="text-xs tracking-widest uppercase font-semibold text-amber-400/90 pt-2">
+            Con cariño, tu familia de la iglesia ❤️
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pie de página sutil -->
+  <footer class="relative z-20 py-4 text-center text-[10px] text-slate-500 tracking-wider uppercase">
+    Parque Identidad • Encuentros que transforman vidas
+  </footer>
  
-    function createElegantText(message) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 800; canvas.height = 160;
-      const ctx = canvas.getContext('2d');
-      ctx.font = "italic bold 65px 'Georgia', serif"; 
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.shadowColor = "#ffcc00";
-      ctx.shadowBlur = 20;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(message, 400, 80);
-      return new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
-    }
+  <script>
+    // Variables globales de estado
+    let visitorName = "";
+    let musicStarted = false;
 
-    const mainText = createElegantText("Te amo 💛🌻");
-    mainText.position.set(0, 4, 0);
-    mainText.scale.set(0, 0, 0); 
-    scene.add(mainText);
-
-    const orbitGroup = new THREE.Group();
-    scene.add(orbitGroup);
-
-    function createSmallTextSprite(message) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 700; canvas.height = 140;
-      const context = canvas.getContext('2d');
-      context.font = "bold 45px Arial";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillStyle = "#ffffff";
-      context.shadowColor = "#ffaa00";
-      context.shadowBlur = 10;
-      context.fillText(message, canvas.width / 2, canvas.height / 2);
-      return new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
-    }
-
-    const romanticTexts = [
-      "Amor de mi vida 💛", "Eres preciosa 🌻", "Me encantas 🌼", "Mi Amor 💛", 
-      "Eres mi todo 🌻", "Te Amo ☀️", "Siempre juntos 💛", "Eres mi sol 🌻", 
-      "Eres única 🌼", "Te adoro 💛", "My Love 🌻", "Amor de mi vida 💛", 
-      "Eres preciosa 🌻", "Me encantas 🌼", "Mi Amor 💛", "Eres mi todo 🌻", 
-      "Te Amo ☀️", "Siempre juntos 💛", "Eres mi sol 🌻", "Eres única 🌼", 
-      "Te adoro 💛", "My Love 🌻"
-    ];
-    
-    const imageUrls = [
-      "4.png", 
-      "5.png",
-      "6.png",
-      "7.png",
-      "8.png",
-    ];
-
-    const totalOrbiters = romanticTexts.length + imageUrls.length;
-
-    for (let i = 0; i < totalOrbiters; i++) {
-      const radius = 6.0 + (i % 3) * 0.8; 
-      const angle = (i / totalOrbiters) * Math.PI * 2;
-      const heights = [-2.5, -0.8, 0.8, 2.5];
-      const yPos = heights[i % 4] + (Math.random() * 0.4 - 0.2);
-
-      let orbiter;
+    // Control de Audio
+    function toggleMusic() {
+      const audio = document.getElementById('audio-player');
+      const icon = document.getElementById('music-icon');
+      const text = document.getElementById('music-text');
       
-      if (i % 2 === 0) {
-        const textIndex = Math.floor(i / 2) % romanticTexts.length;
-        orbiter = createSmallTextSprite(romanticTexts[textIndex]);
-        orbiter.scale.set(4.5, 0.9, 1);
+      if (audio.paused) {
+        audio.play().then(() => {
+          icon.innerText = '🎶';
+          text.innerText = 'Sonando';
+          musicStarted = true;
+        }).catch(e => {
+          console.log("Audio pendiente de interacción de usuario", e);
+        });
       } else {
-        const imgIndex = Math.floor(i / 2) % imageUrls.length;
-        const tex = textureLoader.load(imageUrls[imgIndex]);
-        tex.colorSpace = THREE.SRGBColorSpace; 
-        
-        orbiter = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-        orbiter.scale.set(1.5, 1.5, 1);
-        
-        orbiter.userData = {
-          esClickeable: true,
-          cartaUrl: `carta${imgIndex + 1}.png`
-        };
+        audio.pause();
+        icon.innerText = '🔇';
+        text.innerText = 'Silenciado';
       }
-
-      orbiter.position.set(Math.cos(angle)*radius, yPos, Math.sin(angle)*radius);
-      orbitGroup.add(orbiter);
-    }
-    orbitGroup.scale.set(0, 0, 0);
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const modalCarta = document.getElementById('modalCarta');
-    const cartaImg = document.getElementById('cartaImg');
-    const cerrarModal = document.getElementById('cerrarModal');
-    let isModalOpen = false;
-
-    window.addEventListener('pointerdown', (event) => {
-      if(isModalOpen) return; 
-
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-
-      const intersects = raycaster.intersectObjects(orbitGroup.children);
-
-      if (intersects.length > 0) {
-        const objetoTocado = intersects[0].object;
-        
-        if (objetoTocado.userData && objetoTocado.userData.esClickeable) {
-          abrirCarta(objetoTocado.userData.cartaUrl);
-        }
-      }
-    });
-
-    function abrirCarta(url) {
-      cartaImg.src = url;
-      modalCarta.classList.add('show');
-      isModalOpen = true;
-      controls.enabled = false;
     }
 
-    cerrarModal.addEventListener('click', () => {
-      modalCarta.classList.remove('show');
-      isModalOpen = false;
-      setTimeout(() => { cartaImg.src = ""; }, 300); 
-      if (stage === 3) controls.enabled = true;
-    });
+    function attemptPlayMusic() {
+      if (!musicStarted) {
+        const audio = document.getElementById('audio-player');
+        audio.play().then(() => {
+          musicStarted = true;
+          document.getElementById('music-icon').innerText = '🎶';
+          document.getElementById('music-text').innerText = 'Sonando';
+        }).catch(e => {
+          // El navegador bloqueó el autoplay sin interacción previa, se activará con el siguiente toque
+        });
+      }
+    }
 
+    // Validación e inicio del viaje interactivo
+    function startJourney() {
+      const input = document.getElementById('user-name');
+      const errorMsg = document.getElementById('error-msg');
+      const nameVal = input.value.trim();
 
-   
-    const clock = new THREE.Clock();
-    let stage = 0; 
-    let timeProgress = 0;
+      if (nameVal === "") {
+        errorMsg.style.opacity = "1";
+        input.focus();
+        return;
+      }
 
-    function easeOutCubic(x) {
-      return 1 - Math.pow(1 - x, 3);
+      visitorName = nameVal;
+      errorMsg.style.opacity = "0";
+      attemptPlayMusic();
+
+      // Transición cinematográfica visual
+      const welcomeSection = document.getElementById('step-welcome');
+      const transitionSection = document.getElementById('step-transition');
+      
+      welcomeSection.style.opacity = "0";
+      setTimeout(() => {
+        welcomeSection.classList.add('hidden');
+        transitionSection.classList.remove('hidden');
+        document.getElementById('transition-greeting').innerText = `Hola, ${visitorName}. Preparando tu mensaje...`;
+        transitionSection.style.opacity = "1";
+
+        // Simular tiempo de transición elegante y emocional
+        setTimeout(() => {
+          transitionSection.style.opacity = "0";
+          setTimeout(() => {
+            transitionSection.classList.add('hidden');
+            
+            // Mostrar mensaje principal con nombre personalizado
+            const messageSection = document.getElementById('step-message');
+            document.getElementById('dynamic-title').innerText = `Hola, ${visitorName}. ❤️`;
+            messageSection.classList.remove('hidden');
+            
+            // Scroll suave hacia arriba
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+              messageSection.style.opacity = "1";
+            }, 50);
+
+          }, 600);
+        }, 1800);
+
+      }, 500);
+    }
+
+    // Interacciones finales
+    function showMoreFaith() {
+      attemptPlayMusic();
+      const reflection = document.getElementById('faith-reflection');
+      if (reflection.classList.contains('hidden')) {
+        reflection.classList.remove('hidden');
+        reflection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        reflection.classList.add('hidden');
+      }
+    }
+
+    function restartMessage() {
+      attemptPlayMusic();
+      const messageSection = document.getElementById('step-message');
+      messageSection.style.opacity = "0";
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          messageSection.style.opacity = "1";
+        }, 300);
+      }, 500);
+    }
+
+    // Three.js: Universo Celestial 3D Inmersivo y Sofisticado
+    let scene, camera, renderer;
+    let starsGeometry, starsPoints;
+    let particlesGeometry, particlesPoints;
+    let crossMesh;
+    let clock = new THREE.Clock();
+
+    function init3D() {
+      const container = document.getElementById('webgl-container');
+      
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x030712, 0.0018);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
+      camera.position.set(0, 0, 700);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      container.appendChild(renderer.domElement);
+
+      // 1. Creación de estrellas estáticas y profundas
+      const starCount = 3000;
+      starsGeometry = new THREE.BufferGeometry();
+      const starPositions = new Float32Array(starCount * 3);
+      const starColors = new Float32Array(starCount * 3);
+
+      const colorPalette = [
+        new THREE.Color(0xfde047), // Dorado suave
+        new THREE.Color(0x93c5fd), // Azul celestial
+        new THREE.Color(0xffffff), // Blanco puro
+        new THREE.Color(0xf472b6)  // Rosa sutil
+      ];
+
+      for (let i = 0; i < starCount; i++) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 2500;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 2500;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2500;
+
+        const col = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        starColors[i * 3] = col.r;
+        starColors[i * 3 + 1] = col.g;
+        starColors[i * 3 + 2] = col.b;
+      }
+
+      starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+      starsGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+      const starsMaterial = new THREE.PointsMaterial({
+        size: 2.2,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+      });
+
+      starsPoints = new THREE.Points(starsGeometry, starsMaterial);
+      scene.add(starsPoints);
+
+      // 2. Partículas doradas flotantes (Polvo estelar dinámico)
+      const particleCount = 800;
+      particlesGeometry = new THREE.BufferGeometry();
+      const pPositions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount; i++) {
+        pPositions[i * 3] = (Math.random() - 0.5) * 1200;
+        pPositions[i * 3 + 1] = (Math.random() - 0.5) * 1200;
+        pPositions[i * 3 + 2] = (Math.random() - 0.5) * 1200;
+      }
+
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+      
+      const pMaterial = new THREE.PointsMaterial({
+        size: 3.5,
+        color: 0xf59e0b,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+      });
+
+      particlesPoints = new THREE.Points(particlesGeometry, pMaterial);
+      scene.add(particlesPoints);
+
+      // 3. Cruz Luminosa lejana y sutil en el horizonte celestial
+      const crossGroup = new THREE.Group();
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: 0xfde047,
+        transparent: true,
+        opacity: 0.35,
+        blending: THREE.AdditiveBlending
+      });
+
+      const verticalBar = new THREE.Mesh(new THREE.BoxGeometry(8, 120, 8), beamMat);
+      const horizontalBar = new THREE.Mesh(new THREE.BoxGeometry(60, 8, 8), beamMat);
+      horizontalBar.position.y = 25;
+
+      crossGroup.add(verticalBar);
+      crossGroup.add(horizontalBar);
+      crossGroup.position.set(0, 180, -1200);
+      crossGroup.scale.set(1.5, 1.5, 1.5);
+      scene.add(crossGroup);
+      crossMesh = crossGroup;
+
+      // Evento de redimensionamiento
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     function animate() {
       requestAnimationFrame(animate);
-      const delta = Math.min(clock.getDelta(), 0.1); 
-      const time = clock.getElapsedTime();
+      const elapsedTime = clock.getElapsedTime();
 
-      comets.forEach(comet => {
-        comet.position.add(comet.userData.velocity);
-        if (comet.position.y < -200 || Math.abs(comet.position.x) > 300 || Math.abs(comet.position.z) > 300) {
-          resetComet(comet);
-        }
-      });
+      // Rotación suave y orgánica del cosmos
+      starsPoints.rotation.y = elapsedTime * 0.025;
+      starsPoints.rotation.x = elapsedTime * 0.01;
 
-      if (stage === 0) {
-        timeProgress += delta * 0.3; 
-        
-        const pos = stars.geometry.attributes.position.array;
-        for(let i = 2; i < pos.length; i += 3) {
-          pos[i] += 25; 
-          if(pos[i] > 100) {
-            pos[i] = -200; 
-            pos[i-1] = (Math.random() - 0.5) * 400;
-            pos[i-2] = (Math.random() - 0.5) * 400;
-          }
-        }
-        stars.geometry.attributes.position.needsUpdate = true;
+      particlesPoints.rotation.y = -elapsedTime * 0.035;
+      particlesPoints.rotation.z = elapsedTime * 0.015;
 
-        explFlowers.forEach(sprite => {
-          sprite.position.z += 25; 
-          if (sprite.position.z > 50) { 
-            sprite.position.z = -200 - Math.random() * 100;
-            sprite.position.x = (Math.random() - 0.5) * 150;
-            sprite.position.y = (Math.random() - 0.5) * 150;
-          }
-        });
-
-        if (timeProgress >= 1) {
-          stage = 1;
-          timeProgress = 0;
-          galaxyGroup.visible = true; 
-        }
-      } 
-      else if (stage === 1) {
-        timeProgress += delta * 0.5; 
-        const scale = easeOutCubic(Math.min(timeProgress, 1));
-        
-        galaxyGroup.scale.set(scale, scale, scale);
-
-        const speed = 25 * (1 - scale);
-        
-        const pos = stars.geometry.attributes.position.array;
-        for(let i = 2; i < pos.length; i += 3) {
-          pos[i] += speed > 0.1 ? speed : 0;
-          if(pos[i] > 100) pos[i] = -200;
-        }
-        stars.geometry.attributes.position.needsUpdate = true;
-
-        explFlowers.forEach(sprite => {
-          sprite.position.z += speed > 0.1 ? speed : 0;
-          if (sprite.position.z > 50) {
-            sprite.position.z = -200 - Math.random() * 100;
-            sprite.position.x = (Math.random() - 0.5) * 150;
-            sprite.position.y = (Math.random() - 0.5) * 150;
-          }
-        });
-
-        if (timeProgress >= 1) {
-          stage = 2;
-          timeProgress = 0;
-        }
-      } 
-      else if (stage === 2) {
-        timeProgress += delta * 0.8; 
-        const scale = easeOutCubic(Math.min(timeProgress, 1));
-        
-        heartParticles.scale.set(scale, scale, scale);
-        orbitGroup.scale.set(scale, scale, scale);
-        mainText.scale.set(5 * scale, 1 * scale, 1); 
-
-        explFlowers.forEach(sprite => {
-          sprite.position.applyAxisAngle(new THREE.Vector3(0,1,0), 0.001);
-        });
-
-        if (timeProgress >= 1) {
-          stage = 3;
-          if(!isModalOpen) controls.enabled = true; 
-        }
+      // Ligero parpadeo de la cruz luminosa
+      if (crossMesh) {
+        crossMesh.rotation.y = Math.sin(elapsedTime * 0.5) * 0.05;
       }
 
-      if (!isModalOpen) {
-        if (stage >= 1) galaxyGroup.rotation.y += 0.001;
-        if (stage >= 2) orbitGroup.rotation.y += 0.001;
-
-        if (stage === 3) {
-           stars.rotation.y += 0.0002; 
-           
-           const pulse = 1 + Math.sin(time * 2.5) * 0.03;
-           heartParticles.scale.set(pulse, pulse, pulse);
-           heartParticles.position.y = 4 + Math.sin(time) * 0.2;
-           mainText.position.y = 4 + Math.sin(time) * 0.2;
-           
-           explFlowers.forEach(sprite => {
-             sprite.position.applyAxisAngle(new THREE.Vector3(0,1,0), 0.001);
-           });
-        }
-      }
-
-      controls.update();
+      TWEEN.update();
       renderer.render(scene, camera);
     }
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    animate();
+    // Inicializar al cargar la página
+    window.onload = () => {
+      init3D();
+      animate();
+    };
   </script>
 </body>
-
-
-  <!--
-
-Contáctame:
-
-   * Crea tus diseños sin código
- https://comparte-amor.vercel.app/
-
-    * Invitame un café
- https://buymeacoffee.com/alexx.dev
-
-    * Portafolio Web
- https://alexxdev.vercel.app
-
-    * Sigueme en tiktok
- https://www.tiktok.com/@alexx.dev?is_from_webapp=1&sender_device=pc
- 
-    * Canal de WhatsApp
- https://whatsapp.com/channel/0029VazQEXq90x2vIdNkrH1p
-
- 
-   * WhatsApp: +52 5587450945
-https://wa.me/525568916053
-
-
--->
-
 </html>
